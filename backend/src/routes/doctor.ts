@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import Patient from '../models/Patient';
-import ClinicalSession from '../models/ClinicalSession';
-import MedicalDocument from '../models/MedicalDocument';
+import Patient from '../models/Patient.js';
+import ClinicalSession from '../models/ClinicalSession.js';
+import MedicalDocument from '../models/MedicalDocument.js';
+import type { IClinicalSession } from '../models/ClinicalSession.js';
 
 const router = Router();
 
@@ -60,15 +61,16 @@ router.post('/case/:sessionId/finalize', async (req, res) => {
     if (!session) return res.status(404).json({ error: 'Session not found' });
     const { assessment, plan, followUpDate } = req.body;
     if (!assessment?.trim() || !plan?.trim()) return res.status(400).json({ error: 'Assessment and plan are required' });
-    session.practitionerReview = {
+    const practitionerReview: NonNullable<IClinicalSession['practitionerReview']> = {
       verified: true,
       intakeValidated: true,
       intakeValidatedAt: session.practitionerReview?.intakeValidatedAt || new Date(),
       assessment: assessment.trim(),
       plan: plan.trim(),
-      followUpDate: followUpDate ? new Date(followUpDate) : undefined,
       reviewedAt: new Date()
     };
+    if (followUpDate) practitionerReview.followUpDate = new Date(followUpDate);
+    session.practitionerReview = practitionerReview;
     session.status = 'reviewed';
     await session.save();
     res.json({ session });
