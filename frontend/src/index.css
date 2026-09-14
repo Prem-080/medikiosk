@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", "Inter", sans-serif;
+  
+  --color-primary: #044d36; /* Dark Green */
+  --color-primary-light: #077150;
+  --color-primary-dark: #023625;
+  --color-primary-100: #e6f3ef;
+  
+  --color-secondary: #fef08a; /* Yellow/Cream accent */
+  --color-secondary-light: #fef9c3;
+  --color-secondary-dark: #fde047;
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased bg-slate-50 text-slate-800;
+  }
+
+  button, a, select, label[for] { cursor: pointer; }
+  button:disabled, select:disabled { cursor: not-allowed; }
+}
+
+/* Custom Utilities for micro-animations */
+@layer utilities {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+}
+
+/* Keep the practitioner queue and case workspace independently scrollable. */
+@media (min-width: 1024px) {
+  #root > div:has(> header + div > aside) {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #root > div:has(> header + div > aside) > div {
+    height: calc(100vh - 81px);
+  }
+
+  #root > div:has(> header + div > aside) aside,
+  #root > div:has(> header + div > aside) main {
+    overflow-y: auto;
+  }
+}
