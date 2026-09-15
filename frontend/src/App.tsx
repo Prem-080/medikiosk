@@ -1,16 +1,16 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import PatientRegistration from './pages/PatientRegistration';
-import Login from './pages/Login';
-import PatientDashboard from './pages/PatientDashboard';
-import HospitalSelection from './pages/HospitalSelection';
-import Consent from './pages/Consent';
-import Interview from './pages/Interview';
-import DoctorDashboard from './pages/DoctorDashboard';
-import CaseSummary from './pages/CaseSummary';
-import Reports from './pages/Reports';
-import PastConsultations from './pages/PastConsultations';
-import DoctorLogin from './pages/DoctorLogin';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import PatientRegistration from "./pages/PatientRegistration";
+import Login from "./pages/Login";
+import PatientDashboard from "./pages/PatientDashboard";
+import HospitalSelection from "./pages/HospitalSelection";
+import Consent from "./pages/Consent";
+import Interview from "./pages/Interview";
+import DoctorDashboard from "./pages/DoctorDashboard";
+import CaseSummary from "./pages/CaseSummary";
+import Reports from "./pages/Reports";
+import PastConsultations from "./pages/PastConsultations";
+import DoctorLogin from "./pages/DoctorLogin";
 
 function App() {
   return (

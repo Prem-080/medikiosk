@@ -1,18 +1,243 @@
-import { useEffect, useState } from 'react';
-import { CalendarDays, Clock3, FileText, Pencil, Trash2, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import PatientShell from '../components/PatientShell';
-import { api } from '../services/api';
-import type { ClinicalSession } from '../types';
+import { useEffect, useState } from "react";
+import {
+  CalendarDays,
+  Clock3,
+  FileText,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import PatientShell from "../components/PatientShell";
+import { api } from "../services/api";
+import type { ClinicalSession } from "../types";
 
 export default function PastConsultations() {
-  const [sessions, setSessions] = useState<ClinicalSession[]>([]); const [selected, setSelected] = useState<ClinicalSession | null>(null); const [editing, setEditing] = useState(false); const [chiefComplaint, setChiefComplaint] = useState(''); const [error, setError] = useState(''); const navigate = useNavigate();
-  const load = () => { const id = localStorage.getItem('patientId'); if (!id) { navigate('/login'); return; } api.getPatientSessions(id).then(data => setSessions(data.sessions || [])).catch(() => setSessions([])); };
-  useEffect(() => { load(); }, [navigate]);
-  const open = (session: ClinicalSession) => { setSelected(session); setChiefComplaint(session.history?.chiefComplaint || ''); setEditing(false); setError(''); };
-  const save = async () => { if (!selected) return; try { const data = await api.updatePatientIntake(selected._id, chiefComplaint); setSelected(data.session); setSessions(items => items.map(item => item._id === data.session._id ? data.session : item)); setEditing(false); } catch (err: any) { setError(err.message); } };
-  const remove = async () => { if (!selected || !window.confirm('Delete this consultation record? This cannot be undone.')) return; try { await api.deletePatientSession(selected._id); setSessions(items => items.filter(item => item._id !== selected._id)); setSelected(null); } catch (err: any) { setError(err.message); } };
-  return <PatientShell title="Past consultations"><p className="text-sm font-semibold text-[#397152]">YOUR CARE TIMELINE</p><h2 className="mt-2 text-4xl font-semibold tracking-[-.04em]">Past consultations</h2><p className="mt-3 text-slate-600">Open a consultation to review its intake details, edit an unfinalised case, or delete it.</p>{sessions.length === 0 ? <Empty/> : <section className="mt-8 space-y-4">{sessions.map(session => <button key={session._id} onClick={() => open(session)} className="flex w-full flex-col gap-4 rounded-2xl border border-[#dfe6dc] bg-white p-6 text-left transition hover:border-[#9bb89e] hover:shadow-sm sm:flex-row sm:items-center"><span className="grid size-12 shrink-0 place-items-center rounded-xl bg-[#eef5ec] text-[#397152]"><FileText size={21}/></span><div className="flex-1"><p className="font-semibold">Pre-consultation case</p><p className="mt-1 text-sm text-slate-500">Created {new Date(session.createdAt).toLocaleDateString()}</p></div><span className="inline-flex items-center gap-2 text-sm text-slate-500"><Clock3 size={15}/>{session.status === 'reviewed' ? 'Practitioner finalised' : session.status}</span></button>)}</section>}{selected && <ConsultationModal session={selected} editing={editing} chiefComplaint={chiefComplaint} error={error} setEditing={setEditing} setChiefComplaint={setChiefComplaint} onClose={() => setSelected(null)} onSave={save} onDelete={remove}/>}</PatientShell>;
+  const [sessions, setSessions] = useState<ClinicalSession[]>([]);
+  const [selected, setSelected] = useState<ClinicalSession | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [chiefComplaint, setChiefComplaint] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const load = () => {
+    const id = localStorage.getItem("patientId");
+    if (!id) {
+      navigate("/login");
+      return;
+    }
+    api
+      .getPatientSessions(id)
+      .then((data) => setSessions(data.sessions || []))
+      .catch(() => setSessions([]));
+  };
+  useEffect(() => {
+    load();
+  }, [navigate]);
+  const open = (session: ClinicalSession) => {
+    setSelected(session);
+    setChiefComplaint(session.history?.chiefComplaint || "");
+    setEditing(false);
+    setError("");
+  };
+  const save = async () => {
+    if (!selected) return;
+    try {
+      const data = await api.updatePatientIntake(selected._id, chiefComplaint);
+      setSelected(data.session);
+      setSessions((items) =>
+        items.map((item) =>
+          item._id === data.session._id ? data.session : item,
+        ),
+      );
+      setEditing(false);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+  const remove = async () => {
+    if (
+      !selected ||
+      !window.confirm("Delete this consultation record? This cannot be undone.")
+    )
+      return;
+    try {
+      await api.deletePatientSession(selected._id);
+      setSessions((items) => items.filter((item) => item._id !== selected._id));
+      setSelected(null);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+  return (
+    <PatientShell title="Past consultations">
+      <p className="text-sm font-semibold text-[#397152]">YOUR CARE TIMELINE</p>
+      <h2 className="mt-2 text-4xl font-semibold tracking-[-.04em]">
+        Past consultations
+      </h2>
+      <p className="mt-3 text-slate-600">
+        Open a consultation to review its intake details, edit an unfinalised
+        case, or delete it.
+      </p>
+      {sessions.length === 0 ? (
+        <Empty />
+      ) : (
+        <section className="mt-8 space-y-4">
+          {sessions.map((session) => (
+            <button
+              key={session._id}
+              onClick={() => open(session)}
+              className="flex w-full flex-col gap-4 rounded-2xl border border-[#dfe6dc] bg-white p-6 text-left transition hover:border-[#9bb89e] hover:shadow-sm sm:flex-row sm:items-center"
+            >
+              <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-[#eef5ec] text-[#397152]">
+                <FileText size={21} />
+              </span>
+              <div className="flex-1">
+                <p className="font-semibold">Pre-consultation case</p>
+                <p className="mt-1 text-sm text-slate-500">
+                  Created {new Date(session.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-2 text-sm text-slate-500">
+                <Clock3 size={15} />
+                {session.status === "reviewed"
+                  ? "Practitioner finalised"
+                  : session.status}
+              </span>
+            </button>
+          ))}
+        </section>
+      )}
+      {selected && (
+        <ConsultationModal
+          session={selected}
+          editing={editing}
+          chiefComplaint={chiefComplaint}
+          error={error}
+          setEditing={setEditing}
+          setChiefComplaint={setChiefComplaint}
+          onClose={() => setSelected(null)}
+          onSave={save}
+          onDelete={remove}
+        />
+      )}
+    </PatientShell>
+  );
 }
-function Empty() { return <section className="mt-8 grid min-h-[380px] place-items-center rounded-3xl border border-dashed border-[#d8e2d5] bg-white p-8 text-center"><div><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#eef5ec] text-[#397152]"><CalendarDays size={26}/></span><h3 className="mt-5 text-2xl font-semibold">No consultations yet.</h3><p className="mx-auto mt-3 max-w-md leading-7 text-slate-500">When you complete a case-taking session, it will be listed here for your reference.</p></div></section>; }
-function ConsultationModal(props: any) { const { session } = props; const reviewed = session.status === 'reviewed'; const practitioner = (session as any).practitionerReview; return <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 grid place-items-center bg-[#132119]/45 p-5" onMouseDown={props.onClose}><section className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8" onMouseDown={(event) => event.stopPropagation()}><div className="flex justify-between"><div><p className="text-xs font-semibold tracking-[.15em] text-[#397152]">CONSULTATION RECORD</p><h3 className="mt-2 text-2xl font-semibold">{reviewed ? 'Practitioner-finalised case' : 'Pre-consultation case'}</h3></div><button onClick={props.onClose} aria-label="Close consultation"><X size={20}/></button></div><div className="mt-7"><p className="text-xs font-semibold tracking-[.12em] text-slate-400">CHIEF CONCERN</p>{props.editing ? <textarea value={props.chiefComplaint} onChange={(event) => props.setChiefComplaint(event.target.value)} className="mt-2 min-h-28 w-full rounded-xl border border-[#dfe6dc] bg-[#fafbf9] p-4 outline-none focus:border-[#397152]"/> : <p className="mt-2 rounded-xl bg-[#f7f8f5] p-4 leading-7 text-slate-700">{session.history?.chiefComplaint || 'Not recorded'}</p>}</div>{practitioner && <div className="mt-5 rounded-2xl bg-[#eef5ec] p-5"><p className="text-xs font-semibold tracking-[.12em] text-[#397152]">PRACTITIONER ASSESSMENT</p><p className="mt-2 leading-7">{practitioner.assessment}</p><p className="mt-5 text-xs font-semibold tracking-[.12em] text-[#397152]">TREATMENT PLAN</p><p className="mt-2 leading-7">{practitioner.plan}</p></div>}{props.error && <p className="mt-4 text-sm text-red-700">{props.error}</p>}<div className="mt-7 flex flex-wrap justify-between gap-3">{!reviewed && <button onClick={props.onDelete} className="inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:underline"><Trash2 size={16}/> Delete record</button>}<div className="ml-auto flex gap-3">{props.editing ? <><button onClick={() => props.setEditing(false)} className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold">Cancel</button><button onClick={props.onSave} className="rounded-full bg-[#164d3c] px-4 py-2 text-sm font-semibold text-white">Save changes</button></> : !reviewed && <button onClick={() => props.setEditing(true)} className="inline-flex items-center gap-2 rounded-full bg-[#164d3c] px-4 py-2 text-sm font-semibold text-white"><Pencil size={15}/> Edit intake</button>}</div></div></section></div>; }
+function Empty() {
+  return (
+    <section className="mt-8 grid min-h-[380px] place-items-center rounded-3xl border border-dashed border-[#d8e2d5] bg-white p-8 text-center">
+      <div>
+        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[#eef5ec] text-[#397152]">
+          <CalendarDays size={26} />
+        </span>
+        <h3 className="mt-5 text-2xl font-semibold">No consultations yet.</h3>
+        <p className="mx-auto mt-3 max-w-md leading-7 text-slate-500">
+          When you complete a case-taking session, it will be listed here for
+          your reference.
+        </p>
+      </div>
+    </section>
+  );
+}
+function ConsultationModal(props: any) {
+  const { session } = props;
+  const reviewed = session.status === "reviewed";
+  const practitioner = (session as any).practitionerReview;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 grid place-items-center bg-[#132119]/45 p-5"
+      onMouseDown={props.onClose}
+    >
+      <section
+        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="flex justify-between">
+          <div>
+            <p className="text-xs font-semibold tracking-[.15em] text-[#397152]">
+              CONSULTATION RECORD
+            </p>
+            <h3 className="mt-2 text-2xl font-semibold">
+              {reviewed
+                ? "Practitioner-finalised case"
+                : "Pre-consultation case"}
+            </h3>
+          </div>
+          <button onClick={props.onClose} aria-label="Close consultation">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="mt-7">
+          <p className="text-xs font-semibold tracking-[.12em] text-slate-400">
+            CHIEF CONCERN
+          </p>
+          {props.editing ? (
+            <textarea
+              value={props.chiefComplaint}
+              onChange={(event) => props.setChiefComplaint(event.target.value)}
+              className="mt-2 min-h-28 w-full rounded-xl border border-[#dfe6dc] bg-[#fafbf9] p-4 outline-none focus:border-[#397152]"
+            />
+          ) : (
+            <p className="mt-2 rounded-xl bg-[#f7f8f5] p-4 leading-7 text-slate-700">
+              {session.history?.chiefComplaint || "Not recorded"}
+            </p>
+          )}
+        </div>
+        {practitioner && (
+          <div className="mt-5 rounded-2xl bg-[#eef5ec] p-5">
+            <p className="text-xs font-semibold tracking-[.12em] text-[#397152]">
+              PRACTITIONER ASSESSMENT
+            </p>
+            <p className="mt-2 leading-7">{practitioner.assessment}</p>
+            <p className="mt-5 text-xs font-semibold tracking-[.12em] text-[#397152]">
+              TREATMENT PLAN
+            </p>
+            <p className="mt-2 leading-7">{practitioner.plan}</p>
+          </div>
+        )}
+        {props.error && (
+          <p className="mt-4 text-sm text-red-700">{props.error}</p>
+        )}
+        <div className="mt-7 flex flex-wrap justify-between gap-3">
+          {!reviewed && (
+            <button
+              onClick={props.onDelete}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:underline"
+            >
+              <Trash2 size={16} /> Delete record
+            </button>
+          )}
+          <div className="ml-auto flex gap-3">
+            {props.editing ? (
+              <>
+                <button
+                  onClick={() => props.setEditing(false)}
+                  className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={props.onSave}
+                  className="rounded-full bg-[#164d3c] px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Save changes
+                </button>
+              </>
+            ) : (
+              !reviewed && (
+                <button
+                  onClick={() => props.setEditing(true)}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#164d3c] px-4 py-2 text-sm font-semibold text-white"
+                >
+                  <Pencil size={15} /> Edit intake
+                </button>
+              )
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

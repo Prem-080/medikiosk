@@ -11,9 +11,13 @@ export interface Patient {
 export interface ClinicalSession {
   _id: string;
   patientId: string;
-  status: 'active' | 'completed' | 'reviewed';
+  status: "active" | "completed" | "reviewed";
   redFlags: string[];
-  conversation: { role: 'ai' | 'patient', content: string, timestamp: string }[];
+  conversation: {
+    role: "ai" | "patient";
+    content: string;
+    timestamp: string;
+  }[];
   history: {
     chiefComplaint?: string;
     hpi?: any;
@@ -31,7 +35,7 @@ export interface MedicalDocument {
   sessionId?: string;
   fileUrl: string;
   fileName: string;
-  extractionStatus: 'pending' | 'completed' | 'failed';
+  extractionStatus: "pending" | "completed" | "failed";
   extractedData: any;
   uploadedAt: string;
 }

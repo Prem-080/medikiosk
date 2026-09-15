@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IPatient extends Document {
   patientIdStr: string;
@@ -22,4 +22,4 @@ const PatientSchema: Schema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model<IPatient>('Patient', PatientSchema);
+export default mongoose.model<IPatient>("Patient", PatientSchema);

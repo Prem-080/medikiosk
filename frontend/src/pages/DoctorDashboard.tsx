@@ -1,21 +1,406 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Activity, AlertCircle, CalendarDays, CheckCircle2, ChevronRight, ClipboardCheck, ClipboardList, FileText, Leaf, LogOut, Stethoscope, UserRound } from 'lucide-react';
-import { api } from '../services/api';
-import { clearDoctorSession, getDoctorSession } from '../utils/doctorAuth';
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Activity,
+  AlertCircle,
+  CalendarDays,
+  CheckCircle2,
+  ChevronRight,
+  ClipboardCheck,
+  ClipboardList,
+  FileText,
+  Leaf,
+  LogOut,
+  Stethoscope,
+  UserRound,
+} from "lucide-react";
+import { api } from "../services/api";
+import { clearDoctorSession, getDoctorSession } from "../utils/doctorAuth";
 
-type Stage = 'review' | 'consult' | 'complete';
+type Stage = "review" | "consult" | "complete";
 
 export default function DoctorDashboard() {
-  const navigate = useNavigate(); const doctor = getDoctorSession(); const [queue, setQueue] = useState<any[]>([]); const [selectedId, setSelectedId] = useState<string | null>(null); const [details, setDetails] = useState<any>(null); const [stage, setStage] = useState<Stage>('review'); const [assessment, setAssessment] = useState(''); const [plan, setPlan] = useState(''); const [followUpDate, setFollowUpDate] = useState(''); const [error, setError] = useState(''); const [saving, setSaving] = useState(false);
-  const loadQueue = () => doctor && api.getDoctorQueue(doctor.hospitalName, doctor.doctorId).then(data => setQueue(data.queue || [])).catch(() => setQueue([]));
-  useEffect(() => { if (!doctor) { navigate('/doctor-login', { replace: true }); return; } loadQueue(); const timer = setInterval(loadQueue, 5000); return () => clearInterval(timer); }, [navigate]);
-  useEffect(() => { if (selectedId) api.getCaseDetails(selectedId).then(data => { setDetails(data); setStage(data.session.practitionerReview?.verified ? 'complete' : 'review'); setAssessment(data.session.practitionerReview?.assessment || ''); setPlan(data.session.practitionerReview?.plan || ''); setFollowUpDate(data.session.practitionerReview?.followUpDate?.slice(0, 10) || ''); }).catch(() => setDetails(null)); }, [selectedId]);
+  const navigate = useNavigate();
+  const doctor = getDoctorSession();
+  const [queue, setQueue] = useState<any[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [details, setDetails] = useState<any>(null);
+  const [stage, setStage] = useState<Stage>("review");
+  const [assessment, setAssessment] = useState("");
+  const [plan, setPlan] = useState("");
+  const [followUpDate, setFollowUpDate] = useState("");
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const loadQueue = () =>
+    doctor &&
+    api
+      .getDoctorQueue(doctor.hospitalName, doctor.doctorId)
+      .then((data) => setQueue(data.queue || []))
+      .catch(() => setQueue([]));
+  useEffect(() => {
+    if (!doctor) {
+      navigate("/doctor-login", { replace: true });
+      return;
+    }
+    loadQueue();
+    const timer = setInterval(loadQueue, 5000);
+    return () => clearInterval(timer);
+  }, [navigate]);
+  useEffect(() => {
+    if (selectedId)
+      api
+        .getCaseDetails(selectedId)
+        .then((data) => {
+          setDetails(data);
+          setStage(
+            data.session.practitionerReview?.verified ? "complete" : "review",
+          );
+          setAssessment(data.session.practitionerReview?.assessment || "");
+          setPlan(data.session.practitionerReview?.plan || "");
+          setFollowUpDate(
+            data.session.practitionerReview?.followUpDate?.slice(0, 10) || "",
+          );
+        })
+        .catch(() => setDetails(null));
+  }, [selectedId]);
   if (!doctor) return null;
-  const session = details?.session; const patient = session?.patientId; const history = session?.history || {}; const finalise = async () => { if (!selectedId) return; setSaving(true); setError(''); try { const result = await api.finalizeConsultation(selectedId, { assessment, plan, followUpDate: followUpDate || undefined }); setDetails((value: any) => ({ ...value, session: result.session })); setStage('complete'); loadQueue(); } catch (err:any) { setError(err.message); } finally { setSaving(false); } };
-  return <div className="h-screen overflow-hidden bg-[#f7f8f5] text-[#1c2722]"><header className="flex h-20 items-center justify-between border-b border-[#dfe6dc] bg-white px-5 sm:px-8"><Link to="/" className="flex items-center gap-3 text-xl font-semibold"><span className="grid size-10 place-items-center rounded-xl bg-[#164d3c] text-[#e8f0d5]"><Leaf size={21}/></span>medikiosk</Link><div className="flex items-center gap-3"><div className="hidden text-right sm:block"><p className="text-sm font-semibold">{doctor.name}</p><p className="text-xs text-slate-500">{doctor.specialty} · {doctor.hospitalName}</p></div><span className="grid size-10 place-items-center rounded-full bg-[#eaf3e9] text-sm font-bold text-[#397152]">{doctor.name.split(' ').filter(Boolean).slice(-2).map(part => part[0]).join('')}</span><button onClick={() => { clearDoctorSession(); navigate('/doctor-login'); }} className="grid size-10 place-items-center rounded-xl text-slate-500 hover:bg-[#f2f7ee] hover:text-[#164d3c]" aria-label="Sign out"><LogOut size={18}/></button></div></header><div className="grid h-[calc(100vh-80px)] lg:grid-cols-[340px_1fr]"><aside className="overflow-y-auto border-r border-[#dfe6dc] bg-white p-5"><div className="flex items-end justify-between"><div><p className="text-xs font-semibold tracking-[.14em] text-[#397152]">{doctor.hospitalName.toUpperCase()}</p><h1 className="mt-1 text-2xl font-semibold">Patient queue</h1></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">{queue.length}</span></div><p className="mt-3 text-xs leading-5 text-slate-500">Completed intake cases assigned to you.</p><div className="mt-5 space-y-2">{queue.length ? queue.map(item => <button key={item._id} onClick={() => setSelectedId(item._id)} className={`w-full rounded-2xl border p-4 text-left ${selectedId === item._id ? 'border-[#5f8e67] bg-[#eef5ec]' : 'border-[#e1e7df] hover:border-[#b8cdb8]'}`}><div className="flex justify-between"><p className="font-semibold">{item.patientId?.name}</p><ChevronRight size={17} className="text-slate-400"/></div><p className="mt-1 text-xs text-slate-500">{item.patientId?.patientIdStr}</p><div className="mt-3 flex gap-2"><span className="rounded-full bg-[#dff0df] px-2 py-0.5 text-xs font-semibold text-[#397152]">Ready for review</span>{item.redFlags?.length > 0 && <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">Alert</span>}</div></button>) : <div className="rounded-2xl border border-dashed border-[#d8e2d5] p-6 text-center text-sm text-slate-500"><CalendarDays className="mx-auto mb-3 text-[#8aac8b]"/>No completed cases assigned yet.</div>}</div></aside><main className="overflow-y-auto p-5 sm:p-9">{!session ? <Empty/> : <div className="mx-auto max-w-5xl"><section className="flex flex-col justify-between gap-5 rounded-3xl border border-[#dfe6dc] bg-white p-7 sm:flex-row sm:items-center"><div className="flex gap-4"><span className="grid size-14 place-items-center rounded-2xl bg-[#eef5ec] text-[#397152]"><UserRound size={26}/></span><div><p className="text-sm font-semibold text-[#397152]">PATIENT CASE</p><h2 className="mt-1 text-3xl font-semibold">{patient?.name}</h2><p className="mt-1 text-sm text-slate-500">{patient?.age} years · {patient?.gender} · {patient?.patientIdStr}</p></div></div>{stage === 'review' && <button onClick={() => setStage('consult')} className="inline-flex items-center gap-2 rounded-full bg-[#164d3c] px-5 py-3 font-semibold text-white"><Stethoscope size={17}/> Begin consultation</button>}</section><Steps stage={stage}/>{session.redFlags?.length > 0 && <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><AlertCircle className="mr-2 inline" size={17}/>{session.redFlags.join(' · ')}</div>}{stage === 'review' && <Review history={history} conversation={session.conversation}/>} {stage === 'consult' && <section className="mt-6 rounded-3xl border border-[#dfe6dc] bg-white p-7"><div className="flex gap-3"><ClipboardCheck className="text-[#397152]"/><div><h3 className="text-lg font-semibold">Practitioner consultation</h3><p className="text-sm text-slate-500">Record your verified assessment and plan.</p></div></div><label className="mt-6 block text-sm font-semibold">Clinical assessment<textarea value={assessment} onChange={e => setAssessment(e.target.value)} className="mt-2 min-h-28 w-full rounded-xl border border-slate-200 bg-[#fafbf9] p-4 font-normal outline-none focus:border-[#397152]" placeholder="Verified assessment and examination findings"/></label><label className="mt-5 block text-sm font-semibold">Treatment plan & advice<textarea value={plan} onChange={e => setPlan(e.target.value)} className="mt-2 min-h-28 w-full rounded-xl border border-slate-200 bg-[#fafbf9] p-4 font-normal outline-none focus:border-[#397152]" placeholder="Prescription, guidance or follow-up instructions"/></label><label className="mt-5 block max-w-xs text-sm font-semibold">Follow-up date <input type="date" value={followUpDate} onChange={e => setFollowUpDate(e.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 bg-[#fafbf9] p-3 font-normal"/></label>{error && <p className="mt-4 text-sm text-red-700">{error}</p>}<button onClick={finalise} disabled={saving} className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#164d3c] px-5 py-3 font-semibold text-white disabled:opacity-60">{saving ? 'Finalising…' : <><CheckCircle2 size={17}/> Finalise consultation</>}</button></section>} {stage === 'complete' && <section className="mt-6 rounded-3xl border border-[#cae2c9] bg-[#eef7ed] p-8"><CheckCircle2 className="text-[#397152]"/><h3 className="mt-4 text-2xl font-semibold">Consultation finalised.</h3><p className="mt-2 text-slate-600">The practitioner-verified assessment and plan are saved to this patient’s record.</p></section>}</div>}</main></div></div>;
+  const session = details?.session;
+  const patient = session?.patientId;
+  const history = session?.history || {};
+  const finalise = async () => {
+    if (!selectedId) return;
+    setSaving(true);
+    setError("");
+    try {
+      const result = await api.finalizeConsultation(selectedId, {
+        assessment,
+        plan,
+        followUpDate: followUpDate || undefined,
+      });
+      setDetails((value: any) => ({ ...value, session: result.session }));
+      setStage("complete");
+      loadQueue();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="h-screen overflow-hidden bg-[#f7f8f5] text-[#1c2722]">
+      <header className="flex h-20 items-center justify-between border-b border-[#dfe6dc] bg-white px-5 sm:px-8">
+        <Link to="/" className="flex items-center gap-3 text-xl font-semibold">
+          <span className="grid size-10 place-items-center rounded-xl bg-[#164d3c] text-[#e8f0d5]">
+            <Leaf size={21} />
+          </span>
+          medikiosk
+        </Link>
+        <div className="flex items-center gap-3">
+          <div className="hidden text-right sm:block">
+            <p className="text-sm font-semibold">{doctor.name}</p>
+            <p className="text-xs text-slate-500">
+              {doctor.specialty} · {doctor.hospitalName}
+            </p>
+          </div>
+          <span className="grid size-10 place-items-center rounded-full bg-[#eaf3e9] text-sm font-bold text-[#397152]">
+            {doctor.name
+              .split(" ")
+              .filter(Boolean)
+              .slice(-2)
+              .map((part) => part[0])
+              .join("")}
+          </span>
+          <button
+            onClick={() => {
+              clearDoctorSession();
+              navigate("/doctor-login");
+            }}
+            className="grid size-10 place-items-center rounded-xl text-slate-500 hover:bg-[#f2f7ee] hover:text-[#164d3c]"
+            aria-label="Sign out"
+          >
+            <LogOut size={18} />
+          </button>
+        </div>
+      </header>
+      <div className="grid h-[calc(100vh-80px)] lg:grid-cols-[340px_1fr]">
+        <aside className="overflow-y-auto border-r border-[#dfe6dc] bg-white p-5">
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-xs font-semibold tracking-[.14em] text-[#397152]">
+                {doctor.hospitalName.toUpperCase()}
+              </p>
+              <h1 className="mt-1 text-2xl font-semibold">Patient queue</h1>
+            </div>
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">
+              {queue.length}
+            </span>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-slate-500">
+            Completed intake cases assigned to you.
+          </p>
+          <div className="mt-5 space-y-2">
+            {queue.length ? (
+              queue.map((item) => (
+                <button
+                  key={item._id}
+                  onClick={() => setSelectedId(item._id)}
+                  className={`w-full rounded-2xl border p-4 text-left ${selectedId === item._id ? "border-[#5f8e67] bg-[#eef5ec]" : "border-[#e1e7df] hover:border-[#b8cdb8]"}`}
+                >
+                  <div className="flex justify-between">
+                    <p className="font-semibold">{item.patientId?.name}</p>
+                    <ChevronRight size={17} className="text-slate-400" />
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {item.patientId?.patientIdStr}
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <span className="rounded-full bg-[#dff0df] px-2 py-0.5 text-xs font-semibold text-[#397152]">
+                      Ready for review
+                    </span>
+                    {item.redFlags?.length > 0 && (
+                      <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">
+                        Alert
+                      </span>
+                    )}
+                  </div>
+                </button>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-[#d8e2d5] p-6 text-center text-sm text-slate-500">
+                <CalendarDays className="mx-auto mb-3 text-[#8aac8b]" />
+                No completed cases assigned yet.
+              </div>
+            )}
+          </div>
+        </aside>
+        <main className="overflow-y-auto p-5 sm:p-9">
+          {!session ? (
+            <Empty />
+          ) : (
+            <div className="mx-auto max-w-5xl">
+              <section className="flex flex-col justify-between gap-5 rounded-3xl border border-[#dfe6dc] bg-white p-7 sm:flex-row sm:items-center">
+                <div className="flex gap-4">
+                  <span className="grid size-14 place-items-center rounded-2xl bg-[#eef5ec] text-[#397152]">
+                    <UserRound size={26} />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-[#397152]">
+                      PATIENT CASE
+                    </p>
+                    <h2 className="mt-1 text-3xl font-semibold">
+                      {patient?.name}
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {patient?.age} years · {patient?.gender} ·{" "}
+                      {patient?.patientIdStr}
+                    </p>
+                  </div>
+                </div>
+                {stage === "review" && (
+                  <button
+                    onClick={() => setStage("consult")}
+                    className="inline-flex items-center gap-2 rounded-full bg-[#164d3c] px-5 py-3 font-semibold text-white"
+                  >
+                    <Stethoscope size={17} /> Begin consultation
+                  </button>
+                )}
+              </section>
+              <Steps stage={stage} />
+              {session.redFlags?.length > 0 && (
+                <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                  <AlertCircle className="mr-2 inline" size={17} />
+                  {session.redFlags.join(" · ")}
+                </div>
+              )}
+              {stage === "review" && (
+                <Review history={history} conversation={session.conversation} />
+              )}{" "}
+              {stage === "consult" && (
+                <section className="mt-6 rounded-3xl border border-[#dfe6dc] bg-white p-7">
+                  <div className="flex gap-3">
+                    <ClipboardCheck className="text-[#397152]" />
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        Practitioner consultation
+                      </h3>
+                      <p className="text-sm text-slate-500">
+                        Record your verified assessment and plan.
+                      </p>
+                    </div>
+                  </div>
+                  <label className="mt-6 block text-sm font-semibold">
+                    Clinical assessment
+                    <textarea
+                      value={assessment}
+                      onChange={(e) => setAssessment(e.target.value)}
+                      className="mt-2 min-h-28 w-full rounded-xl border border-slate-200 bg-[#fafbf9] p-4 font-normal outline-none focus:border-[#397152]"
+                      placeholder="Verified assessment and examination findings"
+                    />
+                  </label>
+                  <label className="mt-5 block text-sm font-semibold">
+                    Treatment plan & advice
+                    <textarea
+                      value={plan}
+                      onChange={(e) => setPlan(e.target.value)}
+                      className="mt-2 min-h-28 w-full rounded-xl border border-slate-200 bg-[#fafbf9] p-4 font-normal outline-none focus:border-[#397152]"
+                      placeholder="Prescription, guidance or follow-up instructions"
+                    />
+                  </label>
+                  <label className="mt-5 block max-w-xs text-sm font-semibold">
+                    Follow-up date{" "}
+                    <input
+                      type="date"
+                      value={followUpDate}
+                      onChange={(e) => setFollowUpDate(e.target.value)}
+                      className="mt-2 w-full rounded-xl border border-slate-200 bg-[#fafbf9] p-3 font-normal"
+                    />
+                  </label>
+                  {error && (
+                    <p className="mt-4 text-sm text-red-700">{error}</p>
+                  )}
+                  <button
+                    onClick={finalise}
+                    disabled={saving}
+                    className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#164d3c] px-5 py-3 font-semibold text-white disabled:opacity-60"
+                  >
+                    {saving ? (
+                      "Finalising…"
+                    ) : (
+                      <>
+                        <CheckCircle2 size={17} /> Finalise consultation
+                      </>
+                    )}
+                  </button>
+                </section>
+              )}{" "}
+              {stage === "complete" && (
+                <section className="mt-6 rounded-3xl border border-[#cae2c9] bg-[#eef7ed] p-8">
+                  <CheckCircle2 className="text-[#397152]" />
+                  <h3 className="mt-4 text-2xl font-semibold">
+                    Consultation finalised.
+                  </h3>
+                  <p className="mt-2 text-slate-600">
+                    The practitioner-verified assessment and plan are saved to
+                    this patient’s record.
+                  </p>
+                </section>
+              )}
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
+  );
 }
-function Empty() { return <div className="grid min-h-[520px] place-items-center rounded-3xl border border-dashed border-[#d8e2d5] bg-white p-8 text-center"><div><ClipboardList className="mx-auto text-[#8aac8b]" size={30}/><h2 className="mt-5 text-2xl font-semibold">Select a patient case.</h2><p className="mt-3 text-slate-500">Review the pre-consultation brief before starting a practitioner-led consultation.</p></div></div>; }
-function Steps({stage}: {stage:Stage}) { const labels = ['Review intake', 'Consultation', 'Finalised']; const current = stage === 'review' ? 0 : stage === 'consult' ? 1 : 2; return <div className="mt-6 flex gap-3">{labels.map((label,index) => <div key={label} className="flex flex-1 items-center gap-2"><span className={`grid size-6 place-items-center rounded-full text-xs font-bold ${index <= current ? 'bg-[#164d3c] text-white' : 'bg-slate-200 text-slate-500'}`}>{index + 1}</span><span className="text-xs font-semibold text-slate-500">{label}</span></div>)}</div>; }
-function Review({history,conversation}: any) { return <><div className="mt-6 rounded-2xl bg-[#eef5ec] p-4 text-sm text-[#315d3b]"><strong>AI-prepared intake:</strong> Validate these patient-provided details before making clinical decisions.</div><div className="mt-6 grid gap-6 lg:grid-cols-2"><section className="rounded-3xl border border-[#dfe6dc] bg-white p-7"><div className="flex gap-3"><Activity className="text-[#397152]"/><h3 className="font-semibold">Clinical overview</h3></div><Detail label="Chief concern" value={history.chiefComplaint}/><Detail label="History of present illness" value={history.hpi ? Object.values(history.hpi).flat().join(' · ') : undefined}/><Detail label="Medication" value={history.medications?.join(', ')}/></section><section className="rounded-3xl bg-[#164d3c] p-7 text-white"><div className="flex gap-3"><Leaf className="text-[#d8e8c8]"/><h3 className="font-semibold">Ayush case assessment</h3></div><div className="mt-6 grid grid-cols-2 gap-3">{[['Prakriti',history.prakriti],['Vikriti',history.vikriti],['Agni',history.agni],['Koshtha',history.koshtha]].map(([label,value]) => <div key={String(label)} className="rounded-xl bg-white/10 p-4"><p className="text-xs text-white/55">{String(label).toUpperCase()}</p><p className="mt-2">{String(value || 'Not assessed')}</p></div>)}</div></section></div><section className="mt-6 rounded-3xl border border-[#dfe6dc] bg-white p-7"><div className="flex gap-3"><FileText className="text-[#397152]"/><h3 className="font-semibold">Patient conversation</h3></div><div className="mt-5 space-y-3">{conversation?.map((item:any,index:number) => <p key={index} className={`rounded-xl p-3 text-sm ${item.role === 'patient' ? 'ml-auto max-w-3xl bg-[#eef5ec]' : 'max-w-3xl bg-[#f7f8f5]'}`}><strong className="mr-2 text-xs uppercase text-slate-400">{item.role}</strong>{item.content}</p>)}</div></section></>; }
-function Detail({label,value}: {label:string;value?:string}) { return <div className="mt-5"><p className="text-xs font-semibold tracking-[.12em] text-slate-400">{label.toUpperCase()}</p><p className="mt-2 rounded-xl bg-[#f7f8f5] p-4 text-sm leading-6">{value || 'Not recorded'}</p></div>; }
+function Empty() {
+  return (
+    <div className="grid min-h-[520px] place-items-center rounded-3xl border border-dashed border-[#d8e2d5] bg-white p-8 text-center">
+      <div>
+        <ClipboardList className="mx-auto text-[#8aac8b]" size={30} />
+        <h2 className="mt-5 text-2xl font-semibold">Select a patient case.</h2>
+        <p className="mt-3 text-slate-500">
+          Review the pre-consultation brief before starting a practitioner-led
+          consultation.
+        </p>
+      </div>
+    </div>
+  );
+}
+function Steps({ stage }: { stage: Stage }) {
+  const labels = ["Review intake", "Consultation", "Finalised"];
+  const current = stage === "review" ? 0 : stage === "consult" ? 1 : 2;
+  return (
+    <div className="mt-6 flex gap-3">
+      {labels.map((label, index) => (
+        <div key={label} className="flex flex-1 items-center gap-2">
+          <span
+            className={`grid size-6 place-items-center rounded-full text-xs font-bold ${index <= current ? "bg-[#164d3c] text-white" : "bg-slate-200 text-slate-500"}`}
+          >
+            {index + 1}
+          </span>
+          <span className="text-xs font-semibold text-slate-500">{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+function Review({ history, conversation }: any) {
+  return (
+    <>
+      <div className="mt-6 rounded-2xl bg-[#eef5ec] p-4 text-sm text-[#315d3b]">
+        <strong>AI-prepared intake:</strong> Validate these patient-provided
+        details before making clinical decisions.
+      </div>
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <section className="rounded-3xl border border-[#dfe6dc] bg-white p-7">
+          <div className="flex gap-3">
+            <Activity className="text-[#397152]" />
+            <h3 className="font-semibold">Clinical overview</h3>
+          </div>
+          <Detail label="Chief concern" value={history.chiefComplaint} />
+          <Detail
+            label="History of present illness"
+            value={
+              history.hpi
+                ? Object.values(history.hpi).flat().join(" · ")
+                : undefined
+            }
+          />
+          <Detail label="Medication" value={history.medications?.join(", ")} />
+        </section>
+        <section className="rounded-3xl bg-[#164d3c] p-7 text-white">
+          <div className="flex gap-3">
+            <Leaf className="text-[#d8e8c8]" />
+            <h3 className="font-semibold">Ayush case assessment</h3>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            {[
+              ["Prakriti", history.prakriti],
+              ["Vikriti", history.vikriti],
+              ["Agni", history.agni],
+              ["Koshtha", history.koshtha],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-xl bg-white/10 p-4">
+                <p className="text-xs text-white/55">
+                  {String(label).toUpperCase()}
+                </p>
+                <p className="mt-2">{String(value || "Not assessed")}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+      <section className="mt-6 rounded-3xl border border-[#dfe6dc] bg-white p-7">
+        <div className="flex gap-3">
+          <FileText className="text-[#397152]" />
+          <h3 className="font-semibold">Patient conversation</h3>
+        </div>
+        <div className="mt-5 space-y-3">
+          {conversation?.map((item: any, index: number) => (
+            <p
+              key={index}
+              className={`rounded-xl p-3 text-sm ${item.role === "patient" ? "ml-auto max-w-3xl bg-[#eef5ec]" : "max-w-3xl bg-[#f7f8f5]"}`}
+            >
+              <strong className="mr-2 text-xs uppercase text-slate-400">
+                {item.role}
+              </strong>
+              {item.content}
+            </p>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+function Detail({ label, value }: { label: string; value?: string }) {
+  return (
+    <div className="mt-5">
+      <p className="text-xs font-semibold tracking-[.12em] text-slate-400">
+        {label.toUpperCase()}
+      </p>
+      <p className="mt-2 rounded-xl bg-[#f7f8f5] p-4 text-sm leading-6">
+        {value || "Not recorded"}
+      </p>
+    </div>
+  );
+}

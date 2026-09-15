@@ -3,9 +3,11 @@
 An AI Clinical History & Pre-Consultation Platform built for the Smart India Hackathon (SIH).
 
 ## Project Overview
+
 MediKiosk addresses the problem of limited consultation time in high-volume Indian hospital OPDs. It provides a kiosk-friendly patient intake interface that adaptively collects the clinical history using AI, processes uploaded medical documents using OCR, and presents a structured physician-ready timeline to the doctor before the consultation even begins.
 
 ## Features
+
 - **Adaptive AI Clinical Interview:** Dynamically asks follow-up questions based on the patient's chief complaint.
 - **Voice/Text Support:** Accessible for elderly and low-literacy users.
 - **OCR Medical Extraction:** Extracts lab values (with normal/high reference ranges) and medications from uploaded documents.
@@ -13,6 +15,7 @@ MediKiosk addresses the problem of limited consultation time in high-volume Indi
 - **Physician Dashboard:** A comprehensive, structured timeline of the patient's history and documents, drastically reducing consultation time.
 
 ## Tech Stack
+
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4, Lucide Icons, React Router DOM.
 - **Backend:** Node.js, Express, TypeScript, Mongoose.
 - **Database:** MongoDB.
@@ -21,26 +24,32 @@ MediKiosk addresses the problem of limited consultation time in high-volume Indi
 ## Setup Instructions
 
 ### Prerequisites
+
 - Node.js (v18+)
 - MongoDB (Running locally on `mongodb://127.0.0.1:27017/medikiosk`)
 
 ### 1. Backend Setup
+
 ```bash
 cd backend
 npm install
 npm run dev
 ```
+
 The backend will run on `http://localhost:5000`.
 
 ### 2. Frontend Setup
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
 The frontend will run on `http://localhost:5173` (or the port specified by Vite).
 
 ## Demo Flow Walkthrough
+
 1. Go to the frontend URL (e.g. `http://localhost:5173`).
 2. Click **"Use Demo Patient"** (Loads Ravi Kumar, 52M).
 3. Review and accept the Consent terms.
@@ -52,6 +61,7 @@ The frontend will run on `http://localhost:5173` (or the port specified by Vite)
 9. Click on the patient to see the structured AI history, red flags, and the extracted OCR lab values side-by-side.
 
 ## Mock Integrations
+
 - **AI Service:** `backend/src/services/MockAIService.ts`
 - **OCR Service:** `backend/src/services/MockOCRService.ts`
 

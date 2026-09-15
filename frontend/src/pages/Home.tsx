@@ -1,30 +1,181 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Bot, FileText, HeartPulse, Leaf, Mic, ShieldCheck, Sparkles } from 'lucide-react';
-import { hasPatientSession } from '../utils/auth';
+import { Link, useNavigate } from "react-router-dom";
+import {
+  ArrowRight,
+  Bot,
+  FileText,
+  HeartPulse,
+  Leaf,
+  Mic,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+import { hasPatientSession } from "../utils/auth";
 
 const steps = [
-  { icon: Mic, title: 'Tell us how you feel', text: 'Answer guided questions by voice or touch, at your own pace.' },
-  { icon: FileText, title: 'Keep reports together', text: 'Add prescriptions and past reports to one secure case file.' },
-  { icon: HeartPulse, title: 'Meet better prepared', text: 'Your practitioner receives an organised case before you meet.' },
+  {
+    icon: Mic,
+    title: "Tell us how you feel",
+    text: "Answer guided questions by voice or touch, at your own pace.",
+  },
+  {
+    icon: FileText,
+    title: "Keep reports together",
+    text: "Add prescriptions and past reports to one secure case file.",
+  },
+  {
+    icon: HeartPulse,
+    title: "Meet better prepared",
+    text: "Your practitioner receives an organised case before you meet.",
+  },
 ];
 
 export default function Home() {
   const navigate = useNavigate();
   const continueSession = (event: React.MouseEvent<HTMLElement>) => {
     const link = (event.target as Element).closest('a[href="/register"]');
-    if (link && hasPatientSession()) { event.preventDefault(); navigate('/patient-dashboard'); }
+    if (link && hasPatientSession()) {
+      event.preventDefault();
+      navigate("/patient-dashboard");
+    }
   };
   return (
-    <main onClickCapture={continueSession} className="min-h-screen overflow-hidden bg-[#fcfcfa] text-[#1c2722]">
+    <main
+      onClickCapture={continueSession}
+      className="min-h-screen overflow-hidden bg-[#fcfcfa] text-[#1c2722]"
+    >
       <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
-        <Link to="/" className="flex items-center gap-3 font-semibold tracking-tight"><span className="grid size-10 place-items-center rounded-xl bg-[#164d3c] text-[#e8f0d5] shadow-sm"><Leaf size={21} /></span><span className="text-xl">medikiosk</span></Link>
-        <div className="flex items-center gap-3"><Link to="/doctor-login" className="hidden rounded-full border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-[#164d3c] hover:text-[#164d3c] sm:block">Practitioner portal</Link><span className="hidden text-sm text-slate-500 lg:block">Already registered?</span><Link to="/login" className="rounded-full bg-[#1d2823] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#164d3c]">Patient sign in</Link></div>
+        <Link
+          to="/"
+          className="flex items-center gap-3 font-semibold tracking-tight"
+        >
+          <span className="grid size-10 place-items-center rounded-xl bg-[#164d3c] text-[#e8f0d5] shadow-sm">
+            <Leaf size={21} />
+          </span>
+          <span className="text-xl">medikiosk</span>
+        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/doctor-login"
+            className="hidden rounded-full border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-[#164d3c] hover:text-[#164d3c] sm:block"
+          >
+            Practitioner portal
+          </Link>
+          <span className="hidden text-sm text-slate-500 lg:block">
+            Already registered?
+          </span>
+          <Link
+            to="/login"
+            className="rounded-full bg-[#1d2823] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#164d3c]"
+          >
+            Patient sign in
+          </Link>
+        </div>
       </header>
       <section className="relative mx-auto grid max-w-7xl gap-12 px-6 pb-20 pt-14 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:pb-28 lg:pt-24">
-        <div className="relative z-10 max-w-2xl"><div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#d9e5d5] bg-[#f2f7ee] px-3 py-1.5 text-xs font-semibold tracking-wide text-[#397152]"><Sparkles size={14} /> PRE-CONSULTATION CARE</div><h1 className="max-w-xl text-5xl font-semibold leading-[1.04] tracking-[-.055em] text-[#1c2722] sm:text-6xl lg:text-7xl">Your Ayush consultation starts with listening.</h1><p className="mt-7 max-w-lg text-lg leading-8 text-slate-600">Medikiosk helps you share your symptoms, lifestyle and medical records before you see your practitioner—so every consultation can begin with context.</p><div className="mt-9 flex flex-col gap-3 sm:flex-row"><Link to="/register" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#164d3c] px-6 py-3.5 font-semibold text-white shadow-lg shadow-[#164d3c]/15 transition hover:-translate-y-0.5 hover:bg-[#103e30]">Start your case <ArrowRight size={18} /></Link><Link to="/login" className="inline-flex items-center justify-center rounded-full border border-slate-300 px-6 py-3.5 font-semibold text-slate-700 transition hover:border-[#164d3c] hover:text-[#164d3c]">I have a patient ID</Link></div><p className="mt-5 flex items-center gap-2 text-sm text-slate-500"><ShieldCheck size={17} className="text-[#397152]" /> Your information supports—not replaces—your practitioner’s judgement.</p></div>
-        <div className="relative min-h-[460px] lg:min-h-[510px]"><div className="absolute right-0 top-0 h-[360px] w-[88%] rounded-[2rem] border border-[#e0e6db] bg-[#f0f4ed]" /><div className="absolute left-0 top-16 w-[82%] rounded-3xl border border-white/70 bg-white p-6 shadow-[0_25px_70px_-28px_rgba(25,49,36,.32)] sm:p-8"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-2xl bg-[#e5f0e6] text-[#164d3c]"><Bot size={22}/></span><div><p className="text-sm font-semibold">Guided case-taking</p><p className="text-xs text-slate-500">Step 2 of 5</p></div></div><span className="rounded-full bg-[#f2f7ee] px-3 py-1 text-xs font-semibold text-[#397152]">In progress</span></div><div className="mt-7 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full w-2/5 rounded-full bg-[#66906d]" /></div><p className="mt-7 text-sm font-medium text-[#397152]">TODAY’S CONCERN</p><p className="mt-2 text-xl font-medium leading-8">How has your sleep been over the past week?</p><div className="mt-6 grid gap-2"><button className="rounded-xl border border-[#dbe5d9] bg-[#f8faf7] px-4 py-3 text-left text-sm">I’m sleeping well</button><button className="rounded-xl border border-[#164d3c] bg-[#eef6ec] px-4 py-3 text-left text-sm font-medium text-[#164d3c]">I find it difficult to sleep</button></div><div className="mt-6 flex items-center gap-2 text-sm text-slate-500"><Mic size={16} /> You can also answer by voice</div></div><div className="absolute bottom-0 right-0 flex w-[58%] items-center gap-3 rounded-2xl bg-[#1d2823] p-4 text-white shadow-xl"><span className="grid size-10 place-items-center rounded-xl bg-white/10 text-[#d8e8c8]"><FileText size={19}/></span><div><p className="text-sm font-semibold">Case summary</p><p className="text-xs text-white/60">Ready for practitioner review</p></div><span className="ml-auto size-2 rounded-full bg-[#a6d58b]" /></div></div>
+        <div className="relative z-10 max-w-2xl">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#d9e5d5] bg-[#f2f7ee] px-3 py-1.5 text-xs font-semibold tracking-wide text-[#397152]">
+            <Sparkles size={14} /> PRE-CONSULTATION CARE
+          </div>
+          <h1 className="max-w-xl text-5xl font-semibold leading-[1.04] tracking-[-.055em] text-[#1c2722] sm:text-6xl lg:text-7xl">
+            Your Ayush consultation starts with listening.
+          </h1>
+          <p className="mt-7 max-w-lg text-lg leading-8 text-slate-600">
+            Medikiosk helps you share your symptoms, lifestyle and medical
+            records before you see your practitioner—so every consultation can
+            begin with context.
+          </p>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Link
+              to="/register"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#164d3c] px-6 py-3.5 font-semibold text-white shadow-lg shadow-[#164d3c]/15 transition hover:-translate-y-0.5 hover:bg-[#103e30]"
+            >
+              Start your case <ArrowRight size={18} />
+            </Link>
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center rounded-full border border-slate-300 px-6 py-3.5 font-semibold text-slate-700 transition hover:border-[#164d3c] hover:text-[#164d3c]"
+            >
+              I have a patient ID
+            </Link>
+          </div>
+          <p className="mt-5 flex items-center gap-2 text-sm text-slate-500">
+            <ShieldCheck size={17} className="text-[#397152]" /> Your
+            information supports—not replaces—your practitioner’s judgement.
+          </p>
+        </div>
+        <div className="relative min-h-[460px] lg:min-h-[510px]">
+          <div className="absolute right-0 top-0 h-[360px] w-[88%] rounded-[2rem] border border-[#e0e6db] bg-[#f0f4ed]" />
+          <div className="absolute left-0 top-16 w-[82%] rounded-3xl border border-white/70 bg-white p-6 shadow-[0_25px_70px_-28px_rgba(25,49,36,.32)] sm:p-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="grid size-11 place-items-center rounded-2xl bg-[#e5f0e6] text-[#164d3c]">
+                  <Bot size={22} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold">Guided case-taking</p>
+                  <p className="text-xs text-slate-500">Step 2 of 5</p>
+                </div>
+              </div>
+              <span className="rounded-full bg-[#f2f7ee] px-3 py-1 text-xs font-semibold text-[#397152]">
+                In progress
+              </span>
+            </div>
+            <div className="mt-7 h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-full w-2/5 rounded-full bg-[#66906d]" />
+            </div>
+            <p className="mt-7 text-sm font-medium text-[#397152]">
+              TODAY’S CONCERN
+            </p>
+            <p className="mt-2 text-xl font-medium leading-8">
+              How has your sleep been over the past week?
+            </p>
+            <div className="mt-6 grid gap-2">
+              <button className="rounded-xl border border-[#dbe5d9] bg-[#f8faf7] px-4 py-3 text-left text-sm">
+                I’m sleeping well
+              </button>
+              <button className="rounded-xl border border-[#164d3c] bg-[#eef6ec] px-4 py-3 text-left text-sm font-medium text-[#164d3c]">
+                I find it difficult to sleep
+              </button>
+            </div>
+            <div className="mt-6 flex items-center gap-2 text-sm text-slate-500">
+              <Mic size={16} /> You can also answer by voice
+            </div>
+          </div>
+          <div className="absolute bottom-0 right-0 flex w-[58%] items-center gap-3 rounded-2xl bg-[#1d2823] p-4 text-white shadow-xl">
+            <span className="grid size-10 place-items-center rounded-xl bg-white/10 text-[#d8e8c8]">
+              <FileText size={19} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Case summary</p>
+              <p className="text-xs text-white/60">
+                Ready for practitioner review
+              </p>
+            </div>
+            <span className="ml-auto size-2 rounded-full bg-[#a6d58b]" />
+          </div>
+        </div>
       </section>
-      <section className="border-y border-[#e7e9e3] bg-white"><div className="mx-auto max-w-7xl px-6 py-16 lg:px-10"><p className="text-sm font-semibold tracking-[.16em] text-[#397152]">DESIGNED FOR A CALMER CONSULTATION</p><div className="mt-8 grid gap-7 md:grid-cols-3">{steps.map(({icon: Icon, title, text}) => <article key={title} className="rounded-2xl border border-[#e7e9e3] p-6"><span className="grid size-11 place-items-center rounded-xl bg-[#eef5ec] text-[#164d3c]"><Icon size={21}/></span><h2 className="mt-5 text-lg font-semibold">{title}</h2><p className="mt-2 leading-7 text-slate-600">{text}</p></article>)}</div></div></section>
+      <section className="border-y border-[#e7e9e3] bg-white">
+        <div className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
+          <p className="text-sm font-semibold tracking-[.16em] text-[#397152]">
+            DESIGNED FOR A CALMER CONSULTATION
+          </p>
+          <div className="mt-8 grid gap-7 md:grid-cols-3">
+            {steps.map(({ icon: Icon, title, text }) => (
+              <article
+                key={title}
+                className="rounded-2xl border border-[#e7e9e3] p-6"
+              >
+                <span className="grid size-11 place-items-center rounded-xl bg-[#eef5ec] text-[#164d3c]">
+                  <Icon size={21} />
+                </span>
+                <h2 className="mt-5 text-lg font-semibold">{title}</h2>
+                <p className="mt-2 leading-7 text-slate-600">{text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

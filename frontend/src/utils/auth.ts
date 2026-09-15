@@ -1,7 +1,11 @@
-const SESSION_COOKIE = 'medikiosk_patient_session';
+const SESSION_COOKIE = "medikiosk_patient_session";
 
 export function hasPatientSession() {
-  return Boolean(localStorage.getItem('token') && localStorage.getItem('patientId')) || document.cookie.includes(`${SESSION_COOKIE}=active`);
+  return (
+    Boolean(
+      localStorage.getItem("token") && localStorage.getItem("patientId"),
+    ) || document.cookie.includes(`${SESSION_COOKIE}=active`)
+  );
 }
 
 export function storePatientSession() {
