@@ -1,0 +1,32 @@
+name: Prettier Code Formatter
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Make sure the actual branch is checked out when running on pull requests
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Prettier
+        # You can customize the file extensions here
+        run: npx prettier --write "**/*.{js,jsx,ts,tsx,json,css,md}"
+
+      - name: Commit and Push changes
+        # This step will only run if Prettier actually modified any files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore(format): auto-format code using prettier'
+          branch: ${{ github.head_ref }}
