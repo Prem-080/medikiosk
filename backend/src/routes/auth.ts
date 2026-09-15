@@ -39,9 +39,9 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { patientIdStr, password } = req.body;
+    const { phone, password } = req.body;
 
-    const patient = await Patient.findOne({ patientIdStr });
+    const patient = await Patient.findOne({ phone });
     if (!patient || !patient.password) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
