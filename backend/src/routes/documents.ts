@@ -1,6 +1,6 @@
-import { Router } from "express";
-import MedicalDocument from "../models/MedicalDocument";
-import { MockOCRService } from "../services/MockOCRService";
+import { Router } from 'express';
+import MedicalDocument from '../models/MedicalDocument.js';
+import { MockOCRService } from '../services/MockOCRService.js';
 
 const router = Router();
 
@@ -16,13 +16,11 @@ router.post("/upload", async (req, res) => {
     });
 
     // Run OCR mock logic asynchronously
-    MockOCRService.extractMedicalEntities(doc.fileUrl)
-      .then(async (extractedData) => {
-        doc.extractionStatus = "completed";
-        doc.extractedData = extractedData;
-        await doc.save();
-      })
-      .catch((err) => console.error(err));
+    MockOCRService.extractMedicalEntities(doc.fileUrl).then(async (extractedData: unknown) => {
+      doc.extractionStatus = 'completed';
+      doc.extractedData = extractedData;
+      await doc.save();
+    }).catch((err: unknown) => console.error(err));
 
     res.json({ document: doc });
   } catch (err) {
