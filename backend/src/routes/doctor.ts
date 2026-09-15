@@ -97,11 +97,9 @@ router.post("/case/:sessionId/send-to-abha", async (req, res) => {
     const session = await ClinicalSession.findById(req.params.sessionId);
     if (!session) return res.status(404).json({ error: "Session not found" });
     if (!session.practitionerReview?.verified)
-      return res
-        .status(400)
-        .json({
-          error: "Finalise the practitioner review before ABHA sharing",
-        });
+      return res.status(400).json({
+        error: "Finalise the practitioner review before ABHA sharing",
+      });
     res.json({
       status: "demo_sent",
       message: "Practitioner-approved record marked ready for ABHA sharing",

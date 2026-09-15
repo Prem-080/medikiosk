@@ -22,11 +22,9 @@ router.patch("/:sessionId/patient-intake", async (req, res) => {
     const session = await ClinicalSession.findById(req.params.sessionId);
     if (!session) return res.status(404).json({ error: "Session not found" });
     if (session.status === "reviewed")
-      return res
-        .status(400)
-        .json({
-          error: "A practitioner-finalised consultation cannot be edited",
-        });
+      return res.status(400).json({
+        error: "A practitioner-finalised consultation cannot be edited",
+      });
     const { chiefComplaint } = req.body;
     if (!chiefComplaint?.trim())
       return res.status(400).json({ error: "Chief concern is required" });
